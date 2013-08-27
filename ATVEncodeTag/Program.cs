@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,26 @@ namespace ATVEncodeTag
 
                 //  Print out information we know now:
                 Console.WriteLine("TV show: {0}, Season: {1}", mInfo.TvShow, mInfo.TvShowSeasonNumber);
+
+                //  Determine output path for Handbrake 
+                string handbrakeOutput = Path.Combine(
+                    Path.GetDirectoryName(options.FileToProcess),
+                    Path.GetFileNameWithoutExtension(options.FileToProcess) + ".m4v"
+                    );
+
+                //  Process in Handbrake and wait (using timeout)
+
+                //  Figure out meta information location (artwork / ratings)
+                //  Get artwork and ratings for the show / season
+
+                //  Process in AtomicParsley and wait
+
+                //  Move to after processing path
+
+                //  Remove original file (it shouldn't be needed anymore)
+
+                //  Send notification using Pushover
+
             }
         }
     }
