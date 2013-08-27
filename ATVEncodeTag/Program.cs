@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ATVAssistant.Common;
 
 namespace ATVEncodeTag
 {
@@ -29,10 +30,10 @@ namespace ATVEncodeTag
                     Console.WriteLine("The passed file is not in the base path of {0}", basePath);
 
                 //  Next, parse our directory structure:
-                MediaInfo mInfo = MediaInfo.FromPathInfo(basePath, options.FileToProcess);
+                TVShowInfo showInfo = TVShowInfo.FromPathInfo(basePath, options.FileToProcess);
 
                 //  Print out information we know now:
-                Console.WriteLine("TV show: {0}, Season: {1}", mInfo.TvShow, mInfo.TvShowSeasonNumber);
+                Console.WriteLine("TV show: {0}, Season: {1}", showInfo.Name, showInfo.SeasonNumber);
 
                 //  Determine output path for Handbrake 
                 string handbrakeOutput = Path.Combine(
