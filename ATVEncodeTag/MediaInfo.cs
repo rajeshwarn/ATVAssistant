@@ -60,13 +60,18 @@ namespace ATVEncodeTag
             MediaInfo retval = new MediaInfo();
 
             //  Parse the path information from the base path onward:
-            var info = pathToMedia.Substring(basePath.Length).Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+            string[] pathInfo = pathToMedia.Substring(basePath.Length).Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+
+            //  Parse the filename:
+            string[] fileInfo = Path.GetFileNameWithoutExtension(pathToMedia).Split('-');
+            string parsedEpisode = fileInfo[1].Trim().Split('E')[1].Trim();
+            string episodeTitle = fileInfo[2].Trim();
 
             //  Set TV show:
-            retval.TvShow = info[0];
+            retval.TvShow = pathInfo[0];
 
             //  Set season:
-            string parsedSeason = Regex.Replace(info[1], "[^0-9.]", "");
+            string parsedSeason = Regex.Replace(pathInfo[1], "[^0-9.]", "");
             int parsedSeasonNumber = 0;
 
             if(int.TryParse(parsedSeason, out parsedSeasonNumber))
@@ -75,8 +80,15 @@ namespace ATVEncodeTag
             }
 
             //  Set Episode number
+            int parsedEpisodeNumber = 0;
+
+            if(int.TryParse(parsedEpisode, out parsedEpisodeNumber))
+            {
+                retval.TvEpisodeNumber = parsedEpisodeNumber;
+            }
 
             //  Set Episode title:
+            retval.TvEpisodeTitle = episodeTitle;
 
             //  Return our MediaInfo object:
             return retval;
