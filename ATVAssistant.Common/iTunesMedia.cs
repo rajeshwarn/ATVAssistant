@@ -43,10 +43,20 @@ namespace ATVAssistant.Common
         }
 
         /// <summary>
-        /// For TV shows, this is the show name
+        /// For TV shows, this is the show name.  For movies, this is the director
         /// </summary>
         [DataMember(Name = "artistName")]
-        public string ShowName
+        public string Name
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// For movies, this is the title of the movie
+        /// </summary>
+        [DataMember(Name = "trackName")]
+        public string Title
         {
             get;
             set;

@@ -40,7 +40,7 @@ namespace ATVAssistant.Common.Tests
         public void GetArtworkForMovie_Successful()
         {
             //  Arrange
-            string movie = "Super 8";
+            string movie = "Jurassic Park";
 
             //  Act
             List<iTunesMedia> mediaInfo = iTunesMedia.ForMovie(movie);
