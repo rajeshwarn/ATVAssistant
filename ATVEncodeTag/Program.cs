@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using ATVAssistant.Common;
@@ -18,8 +20,13 @@ namespace ATVEncodeTag
     {
         static void Main(string[] args)
         {
-            //  Get the base path:
+            //  Get the base path for source files:
             string basePath = ConfigurationManager.AppSettings["BasePath"];
+            string currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            //  Get the Handbrake settings:
+            string handbrakeSwitches = ConfigurationManager.AppSettings["HandbrakeSwitches"];
+            int handbrakeTimeout = Convert.ToInt32(ConfigurationManager.AppSettings["HandbrakeTimeout"]);
 
             //  Parse commandline options
             Options options = new Options();
@@ -32,8 +39,8 @@ namespace ATVEncodeTag
                 //  Next, parse our directory structure:
                 TVShowInfo showInfo = TVShowInfo.FromPathInfo(basePath, options.FileToProcess);
 
-                //  Print out information we know now:
-                Console.WriteLine("TV show: {0}, Season: {1}", showInfo.Name, showInfo.SeasonNumber);
+                //  Figure out meta information location (artwork / ratings)
+                //  Get artwork and ratings for the show / season
 
                 //  Determine output path for Handbrake 
                 string handbrakeOutput = Path.Combine(
@@ -42,9 +49,24 @@ namespace ATVEncodeTag
                     );
 
                 //  Process in Handbrake and wait (using timeout)
+                ProcessStartInfo pInfo = new ProcessStartInfo();
+                
+                pInfo.Arguments = string.Format("-i \"{0}\" -o \"{1}\" {2}", 
+                    options.FileToProcess, 
+                    handbrakeOutput, 
+                    handbrakeSwitches);
 
-                //  Figure out meta information location (artwork / ratings)
-                //  Get artwork and ratings for the show / season
+                pInfo.FileName = Path.Combine(currentPath, "HandBrakeCLI.exe");
+                
+                Process process = Process.Start(pInfo);
+                process.WaitForExit(handbrakeTimeout);
+
+                //  If it hasn't exited, but it's not responding...
+                //  kill the process
+                if(!process.HasExited && !process.Responding)
+                {
+                    process.Kill();
+                }
 
                 //  Process in AtomicParsley and wait
 
