@@ -50,6 +50,8 @@
     <Compile Include="iTunesMediaResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TVShowInfo.cs" />
+    <Compile Include="TVShowMetaInfo.cs" />
+    <Compile Include="TVShowMetaInfoManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
