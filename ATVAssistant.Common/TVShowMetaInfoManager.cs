@@ -73,12 +73,12 @@ namespace ATVAssistant.Common
         {
             TVShowMetaInfo retval = null;
 
-            //  First, look for a show with no season information (it's the default)
-            retval = this.Shows.Where(s => s.Name == showName).FirstOrDefault();
+            //  First, try to use the cached information
+            retval = this.Shows.Where(s => s.Name == showName && s.Season == season).FirstOrDefault();
 
             if(retval == null)
             {
-                //  If we can't even find just the show, 
+                //  If we can't find the show, 
                 //  look for it in iTunes and get information
                 var iTunesItem = iTunesMedia.ForTVShow(showName, season).FirstOrDefault();
 
@@ -90,7 +90,7 @@ namespace ATVAssistant.Common
                     string artworkFilename = Path.GetFileName(uri.LocalPath);
                     string savedArtworkPath = Path.Combine(this.ArtworkBasePath, artworkFilename);
                     WebClient web = new WebClient();
-                    web.DownloadFile(iTunesItem.ArtworkUrl, savedArtworkPath);
+                    web.DownloadFile(iTunesItem.LargeArtworkUrl, savedArtworkPath);
 
                     //  Create a new show information object
                     TVShowMetaInfo newShowInfo = new TVShowMetaInfo()
@@ -105,21 +105,6 @@ namespace ATVAssistant.Common
                     this.Shows.Add(newShowInfo);
                     this.SaveShowInfo();
                     retval = newShowInfo;
-                }
-            }
-            else
-            {
-                //  Next, look for the exact match:
-                TVShowMetaInfo exactMatch = this.Shows.Where(s => s.Name == showName && s.Season == season).FirstOrDefault();
-
-                if(exactMatch != null)
-                {
-                    //  As long as the exact match isn't null, override any defaults
-                    if(!string.IsNullOrEmpty(exactMatch.Rating))
-                        retval.Rating = exactMatch.Rating;
-
-                    if(!string.IsNullOrEmpty(exactMatch.ArtworkLocation))
-                        retval.ArtworkLocation = exactMatch.ArtworkLocation;
                 }
             }
                 

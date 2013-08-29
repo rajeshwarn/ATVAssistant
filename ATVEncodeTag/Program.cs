@@ -169,7 +169,7 @@ namespace ATVEncodeTag
                 if(!string.IsNullOrEmpty(pushoverAppKey) && !string.IsNullOrEmpty(pushoverUserKey))
                 {
                     //  Create the push client
-                    Pushover pushClient = new Pushover(pushoverAppKey, pushoverUserKey);
+                    Pushover pushClient = new Pushover(pushoverAppKey);
 
                     //  Format the message
                     string message = string.Format(
@@ -178,7 +178,7 @@ namespace ATVEncodeTag
                         showInfo.EpisodeNumber,
                         showInfo.EpisodeTitle);
 
-                    pushClient.Push(showInfo.Name, message);
+                    pushClient.Push(showInfo.Name, message, pushoverUserKey);
                 } 
 
                 #endregion
