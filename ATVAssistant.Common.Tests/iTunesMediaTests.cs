@@ -23,13 +23,14 @@ namespace ATVAssistant.Common.Tests
         }
 
         [TestMethod]
-        public void GetArtworkForShow_Successful()
+        public void GetArtworkForShowRetry_Successful()
         {
             //  Arrange
-            string show = "Breaking Bad";
+            string show = "Colbert Report";
+            int season = 9;
 
             //  Act
-            List<iTunesMedia> mediaInfo = iTunesMedia.ForTVShow(show);
+            List<iTunesMedia> mediaInfo = iTunesMedia.ForTVShow(show, season);
 
             //  Assert
             Assert.IsNotNull(mediaInfo);

@@ -98,16 +98,13 @@ namespace ATVAssistant.Common
         /// <param name="showName"></param>
         /// <param name="season"></param>
         /// <returns></returns>
-        public static List<iTunesMedia> ForTVShow(string showName, int season = 0)
+        public static List<iTunesMedia> ForTVShow(string showName, int season)
         {
             List<iTunesMedia> retval = new List<iTunesMedia>();
             var nvc = HttpUtility.ParseQueryString(string.Empty);
 
-            //  If we have a season, include that in the search
-            if(season > 0)
-                nvc.Add("term", showName + " " + season);
-            else
-                nvc.Add("term", showName);
+            //  Include the season in the search
+            nvc.Add("term", showName + " " + season);
 
             //  Set attributes for a TV season.  
             nvc.Add("media", "tvShow");
@@ -119,6 +116,18 @@ namespace ATVAssistant.Common
 
             //  Call the service and get the results:
             iTunesMediaResult serviceResult = fullUrl.GetJsonFromUrl().Trim().FromJson<iTunesMediaResult>();
+
+            //  If we didn't get anything back, try without the season
+            if(serviceResult.ResultCount < 1)
+            {
+                nvc["term"] = showName;
+
+                //  Format the url
+                fullUrl = string.Format(_baseSearchUrl, nvc.ToString());
+
+                //  Call the service and get the results:
+                serviceResult = fullUrl.GetJsonFromUrl().Trim().FromJson<iTunesMediaResult>();
+            }
 
             //  Set the results:
             retval = serviceResult.Results;
