@@ -12,8 +12,8 @@ namespace ATVAssistant.Common.Tests
             //  Arrange
             string showInfoFile = @"c:\temp\showinfo.json";
             string artworkBasePath = @"c:\temp\artwork";
-            string showName = "Alias";
-            int season = 3;
+            string showName = "Breaking Bad";
+            int season = 5;
 
             //  Act
             TVShowMetaInfoManager mgr = new TVShowMetaInfoManager(showInfoFile, artworkBasePath);

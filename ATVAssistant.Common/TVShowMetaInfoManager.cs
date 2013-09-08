@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ServiceStack.Text;
 
@@ -88,7 +89,9 @@ namespace ATVAssistant.Common
                     //  Save the artwork to the base path
                     Uri uri = new Uri(iTunesItem.LargeArtworkUrl);
                     string artworkFilename = Path.GetFileName(uri.LocalPath);
-                    string savedArtworkPath = Path.Combine(this.ArtworkBasePath, artworkFilename);
+                    string savedArtworkPath = Path.Combine(this.ArtworkBasePath,
+                        string.Format("{0}S{1:D2}{2}", Regex.Replace(showName, @"[\W]", ""), season, Path.GetExtension(artworkFilename))
+                        );
                     WebClient web = new WebClient();
                     web.DownloadFile(iTunesItem.LargeArtworkUrl, savedArtworkPath);
 
