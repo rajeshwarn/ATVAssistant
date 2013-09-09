@@ -89,6 +89,8 @@ namespace ATVAssistant.Common
                     //  Save the artwork to the base path
                     Uri uri = new Uri(iTunesItem.LargeArtworkUrl);
                     string artworkFilename = Path.GetFileName(uri.LocalPath);
+                    
+                    //  Save the artwork with the show and season number as the filename
                     string savedArtworkPath = Path.Combine(this.ArtworkBasePath,
                         string.Format("{0}S{1:D2}{2}", Regex.Replace(showName, @"[\W]", ""), season, Path.GetExtension(artworkFilename))
                         );
