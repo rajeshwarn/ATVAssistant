@@ -1,0 +1,17 @@
+﻿<Window x:Class="VideoRatingTag.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="450" Width="525">
+    <Grid>
+        <Label Content="Video rating tagger" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="39" Width="181" FontSize="20"/>
+        <Label Content="Drag and drop files to merge onto the list below" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top" Width="499"/>
+        <ListBox AllowDrop="true" Height="189" Margin="10,81,8,0" VerticalAlignment="Top" Drop="ListBox_Drop" DragOver="ListBox_DragOver" ItemsSource="{Binding}"/>
+        <Button x:Name="btnClearList" Content="Clear list" Margin="413,275,8,0" VerticalAlignment="Top" Click="btnClearList_Click"/>
+        <ComboBox Margin="269,330,10,0" VerticalAlignment="Top">
+            <ListBoxItem Content="PG"/>
+            <ListBoxItem Content="PG-13"/>
+        </ComboBox>
+        <Label Content="Select new rating:" HorizontalAlignment="Left" Margin="161,326,0,0" VerticalAlignment="Top"/>
+
+    </Grid>
+</Window>
