@@ -1,18 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using DirectShowLib;
 using DirectShowLib.Dvd;
+using ServiceStack.Text;
 
 namespace ATVAssistant.Common
 {
     /// <summary>
     /// Gets information for a DVD currently inserted in the drive
     /// </summary>
+    [DataContract]
     public class DVDInfo
     {
+        /// <summary>
+        /// Base API url
+        /// </summary>
+        private static string _baseSearchUrl = "http://www.api.dvdid.info/0dbbac014a8fb4bebab783cc55135c63e1d1f300/getInfo/{0}/json";
+
+        /// <summary>
+        /// The movie database id
+        /// </summary>
+        [DataMember(Name = "TMDbId")]
+        public string TMDBId { get; set; }
+
+        /// <summary>
+        /// IMDB id
+        /// </summary>
+        [DataMember(Name = "IMDbId")]
+        public string IMDBId { get; set; }
+
+        /// <summary>
+        /// DVD title
+        /// </summary>
+        [DataMember(Name = "dvdTitle")]
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Fetches the DVDId for a given DVD volume
+        /// </summary>
+        /// <param name="dvdVolume"></param>
+        /// <returns></returns>
         public string GetDVDId(string dvdVolume = null)
         {
             string retval = string.Empty;
@@ -47,6 +78,33 @@ namespace ATVAssistant.Common
             {
                 //  Silently eat this for now
             }
+
+            return retval;
+        }
+
+        /// <summary>
+        /// Gets the DVD information for a given DVD volume
+        /// </summary>
+        /// <param name="dvdVolume"></param>
+        /// <returns></returns>
+        public static DVDInfo ForDVD(string dvdVolume = null)
+        {
+            DVDInfo retval = null;
+            string dvdId = new DVDInfo().GetDVDId(dvdVolume);
+
+            //  Format the url
+            string fullUrl = string.Format(_baseSearchUrl, dvdId);
+
+            try
+            {
+                //  Call the service and get the results:
+                DVDInfo serviceResult = fullUrl.GetJsonFromUrl().Trim().FromJson<DVDInfo>();
+
+                //  Set the results:
+                retval = serviceResult;
+            }
+            catch(Exception)
+            { /* Fail quietly */ }
 
             return retval;
         }

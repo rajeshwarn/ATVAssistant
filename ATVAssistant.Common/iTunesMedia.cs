@@ -93,6 +93,18 @@ namespace ATVAssistant.Common
         }
 
         /// <summary>
+        /// Media genre
+        /// </summary>
+        [DataMember(Name = "primaryGenreName")]
+        public string Genre { get; set; }
+
+        /// <summary>
+        /// Release date
+        /// </summary>
+        [DataMember(Name = "releaseDate")]
+        public DateTime ReleaseDate { get; set; }
+
+        /// <summary>
         /// Get media information for a TV show
         /// </summary>
         /// <param name="showName"></param>
