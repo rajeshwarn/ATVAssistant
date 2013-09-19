@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ATVAssistant.Common;
 
 namespace RipRobot
 {
@@ -39,6 +40,61 @@ namespace RipRobot
 
             #endregion
 
+            #region Get DVD information
+
+            //  Get DVD information
+            List<iTunesMedia> mediaInfo = new List<iTunesMedia>();
+            DVDInfo di = DVDInfo.ForDVD();
+
+            //  If we have basic information, get media information:
+            if(di != null)
+                mediaInfo = iTunesMedia.ForMovie(di.Title);
+
+            #endregion
+
+            #region Encode with Handbrake or rip to disk
+
+            //  If we have media information, proceed with encode
+            if(mediaInfo.Any())
+            {
+
+            }
+            else
+            { 
+                //  Otherwise, just rip to disk
+
+            }
+
+            #endregion
+
+            #region If we encoded, add meta data and add to iTunes
+
+            //  If we have media information and our encoded file exists...
+            if(mediaInfo.Any() && File.Exists(""))
+            { 
+                //  Add meta information using Atomicparsley
+
+                //  Move file to post processing area (most likely adding to iTunes)
+
+            }
+
+            #endregion
+
+            #region Send push notification
+
+            //  If we have media information, we just encoded the file
+            if(mediaInfo.Any())
+            {
+                //  Send a push notification about the specific movie just added
+
+            }
+            else
+            { 
+                //  Send a push notification about the rip 
+
+            }
+
+            #endregion
         }
     }
 }
