@@ -31,7 +31,7 @@ namespace RipRobot
                                 select drive.VolumeLabel).FirstOrDefault();
 
             //  Get the base path for source files:
-            string basePath = ConfigurationManager.AppSettings["BasePath"];
+            string baseProcessingPath = ConfigurationManager.AppSettings["BaseProcessingPath"];
             string currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             //  Get the Handbrake & tcclone settings:
@@ -77,7 +77,7 @@ namespace RipRobot
             {
                 //  Determine output path for Handbrake 
                 handbrakeOutput = Path.Combine(
-                    basePath,
+                    baseProcessingPath,
                     di.Title + ".m4v"
                     );
 
@@ -104,7 +104,7 @@ namespace RipRobot
             else
             { 
                 //  Otherwise, just rip to disk
-                string ripPath = Path.Combine(basePath, dvdVolume); 
+                string ripPath = Path.Combine(baseProcessingPath, dvdVolume); 
 
                 //  Make sure the rip destination exists first:
                 if(!Directory.Exists(ripPath))
