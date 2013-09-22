@@ -147,7 +147,7 @@ namespace RipRobot
                 Console.WriteLine("We don't have movie information for disc volume {0}. Attempting to rip", dvdVolume);
 
                 //  Otherwise, just rip to disk
-                string ripPath = Path.Combine(baseProcessingPath, dvdVolume); 
+                string ripPath = Path.Combine(baseProcessingPath, dvdVolume, "VIDEO_TS"); 
 
                 //  Make sure the rip destination exists first:
                 if(!Directory.Exists(ripPath))
@@ -155,24 +155,12 @@ namespace RipRobot
                     Directory.CreateDirectory(ripPath);
                 }
 
-                //  Start the clone process:
-                ProcessStartInfo tcclonePInfo = new ProcessStartInfo();
-
-                tcclonePInfo.Arguments = string.Format("--outpath \"{0}\" \"{1}\" all",
-                    ripPath,
-                    dvdBasePath);
-
-                tcclonePInfo.FileName = Path.Combine(currentPath, "tcclone.exe");
-
-                Process tcCloneProcess = Process.Start(tcclonePInfo);
-                tcCloneProcess.WaitForExit(tcCloneTimeout);
-
-                //  If it hasn't exited, but it's not responding...
-                //  kill the process
-                if(!tcCloneProcess.HasExited && !tcCloneProcess.Responding)
+                //  Copy files from the DVD to the rip path:
+                foreach(string sourceFileName in Directory.EnumerateFiles(dvdBasePath, "*.*"))
                 {
-                    tcCloneProcess.Kill();
-                } 
+                    string destFileName = Path.Combine(ripPath, Path.GetFileName(sourceFileName));
+                    File.Copy(sourceFileName, destFileName, true);
+                }
             }
 
             #endregion
