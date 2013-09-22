@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ATVAssistant.Common;
 using PushoverClient;
@@ -21,10 +22,43 @@ namespace RipRobot
     {
         static void Main(string[] args)
         {
+            #region DVD ready check
+            
+            //  Get DVD settings from args and drive information
+            string dvdDrive = string.Empty;
+            if(args.Any())
+            {
+                dvdDrive = args[0].Replace("\"", "");
+            }
+            else
+            {
+                dvdDrive = ConfigurationManager.AppSettings["DvdDrive"];
+            }
+
+            //  Wait for the drive to become available:
+            int tries = 0;
+            while(tries < 4 && !DriveReady(dvdDrive))
+            {
+                //  Increment the number of tries
+                tries++;
+
+                Console.WriteLine("Waiting for {0} to become ready.  Attempt {1}", dvdDrive, tries);
+
+                //  Sleep for 30 seconds:
+                Thread.Sleep(TimeSpan.FromSeconds(30));
+            }
+
+            //  If the drive still isn't ready, print a message and get out:
+            if(!DriveReady(dvdDrive))
+            {
+                Console.WriteLine("I don't think {0} is going to be ready anytime soon.  Exiting.", dvdDrive);
+                return;
+            } 
+
+            #endregion
+
             #region Load settings
 
-            //  Get DVD settings from args and drive information
-            string dvdDrive = args[0].Replace("\"", "");
             string dvdBasePath = Path.Combine(dvdDrive + Path.DirectorySeparatorChar, "VIDEO_TS");
             string dvdVolume = (from drive in DriveInfo.GetDrives()
                                 where drive.Name == dvdDrive + @"\"
@@ -63,8 +97,13 @@ namespace RipRobot
             MovieMetaInfo movieInfo = null;
             if(di != null)
             {
+                Console.WriteLine("Found disc information for: {0} -- looking for movie information", di.Title);
                 MovieMetaInfoManager mgr = new MovieMetaInfoManager(artworkBasePath);
                 movieInfo = mgr.FindMovieInfo(di.Title);
+            }
+            else
+            {
+                Console.WriteLine("Disc information not found!");
             }
 
             #endregion
@@ -75,6 +114,8 @@ namespace RipRobot
             string handbrakeOutput = string.Empty;
             if(movieInfo != null)
             {
+                Console.WriteLine("Found movie information for {0} (made in {1}).  Attempting to encode", movieInfo.Name, movieInfo.Year);
+
                 //  Determine output path for Handbrake 
                 handbrakeOutput = Path.Combine(
                     baseProcessingPath,
@@ -102,7 +143,9 @@ namespace RipRobot
                 } 
             }
             else
-            { 
+            {
+                Console.WriteLine("We don't have movie information for disc volume {0}. Attempting to rip", dvdVolume);
+
                 //  Otherwise, just rip to disk
                 string ripPath = Path.Combine(baseProcessingPath, dvdVolume); 
 
@@ -205,6 +248,23 @@ namespace RipRobot
             }
 
             #endregion
+        }
+
+        /// <summary>
+        /// Check to see if a drive is ready
+        /// </summary>
+        /// <param name="driveName">A drive name.  Example: D:\</param>
+        /// <returns></returns>
+        static bool DriveReady(string driveName)
+        { 
+            bool retval = false;
+
+            retval = (from drive in DriveInfo.GetDrives()
+                      where drive.Name == driveName + @"\"
+                      && drive.IsReady == true
+                      select drive).Any();
+
+            return retval;
         }
     }
 }

@@ -74,9 +74,9 @@ namespace ATVAssistant.Common
                 if(discId != 0)
                     retval = string.Format("{0,8:x}|{1,8:x}", (int)(discId >> 32), (int)(discId & 0xFFFFFFFF));
             }
-            catch(Exception)
+            catch(Exception ex)
             {
-                //  Silently eat this for now
+                Console.WriteLine("Bad things happened while scanning the disc! {0}", ex.Message);
             }
 
             return retval;
@@ -103,8 +103,10 @@ namespace ATVAssistant.Common
                 //  Set the results:
                 retval = serviceResult;
             }
-            catch(Exception)
-            { /* Fail quietly */ }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Bad things happened while getting disc information! {0}", ex.Message);
+            }
 
             return retval;
         }
