@@ -36,7 +36,7 @@ namespace ATVAssistant.Common
         /// <summary>
         /// DVD title
         /// </summary>
-        [DataMember(Name = "dvdTitle")]
+        [DataMember(Name = "effTitle")]
         public string Title { get; set; }
 
         /// <summary>

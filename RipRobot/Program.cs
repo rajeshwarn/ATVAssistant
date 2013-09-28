@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using ATVAssistant.Common;
@@ -94,16 +95,25 @@ namespace RipRobot
             DVDInfo di = DVDInfo.ForDVD();
 
             //  If we have basic information, get media information:
+            MovieMetaInfoManager mgr = new MovieMetaInfoManager(artworkBasePath);
             MovieMetaInfo movieInfo = null;
             if(di != null)
             {
                 Console.WriteLine("Found disc information for: {0} -- looking for movie information", di.Title);
-                MovieMetaInfoManager mgr = new MovieMetaInfoManager(artworkBasePath);
                 movieInfo = mgr.FindMovieInfo(di.Title);
             }
             else
             {
                 Console.WriteLine("Disc information not found!");
+            }
+
+            //  If we haven't found the movie information still ... 
+            if(movieInfo == null)
+            {
+                //  Plan B:  Try to use the DVD volume name to look up the movie
+                string movieTitle = Regex.Replace(dvdVolume, @"[\W]|_", " ");
+                Console.WriteLine("DiscId not found.  Using volume information to search for a movie called: {0}", movieTitle);
+                movieInfo = mgr.FindMovieInfo(movieTitle);
             }
 
             #endregion

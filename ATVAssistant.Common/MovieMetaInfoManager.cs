@@ -51,7 +51,7 @@ namespace ATVAssistant.Common
                 //  Create a new movie information object:
                 MovieMetaInfo newMovieInfo = new MovieMetaInfo()
                 {
-                    Name = movieName,
+                    Name = iTunesItem.Title,
                     ArtworkLocation = savedArtworkPath,
                     Rating = iTunesItem.Rating,
                     Genre = iTunesItem.Genre,
