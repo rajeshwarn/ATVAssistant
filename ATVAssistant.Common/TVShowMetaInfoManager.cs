@@ -86,30 +86,37 @@ namespace ATVAssistant.Common
                 //  If we found a result
                 if(iTunesItem != null)
                 {
-                    //  Save the artwork to the base path
-                    Uri uri = new Uri(iTunesItem.LargeArtworkUrl);
-                    string artworkFilename = Path.GetFileName(uri.LocalPath);
-                    
-                    //  Save the artwork with the show and season number as the filename
-                    string savedArtworkPath = Path.Combine(this.ArtworkBasePath,
-                        string.Format("{0}S{1:D2}{2}", Regex.Replace(showName, @"[\W]", ""), season, Path.GetExtension(artworkFilename))
-                        );
-                    WebClient web = new WebClient();
-                    web.DownloadFile(iTunesItem.LargeArtworkUrl, savedArtworkPath);
-
-                    //  Create a new show information object
-                    TVShowMetaInfo newShowInfo = new TVShowMetaInfo()
+                    try
                     {
-                        Name = showName,
-                        ArtworkLocation = savedArtworkPath,
-                        Rating = iTunesItem.Rating,
-                        Season = season,
-                    };
+                        //  Save the artwork to the base path
+                        Uri uri = new Uri(iTunesItem.LargeArtworkUrl);
+                        string artworkFilename = Path.GetFileName(uri.LocalPath);
 
-                    //  Add the show, save the file
-                    this.Shows.Add(newShowInfo);
-                    this.SaveShowInfo();
-                    retval = newShowInfo;
+                        //  Save the artwork with the show and season number as the filename
+                        string savedArtworkPath = Path.Combine(this.ArtworkBasePath,
+                            string.Format("{0}S{1:D2}{2}", Regex.Replace(showName, @"[\W]", ""), season, Path.GetExtension(artworkFilename))
+                            );
+                        WebClient web = new WebClient();
+                        web.DownloadFile(iTunesItem.LargeArtworkUrl, savedArtworkPath);
+
+                        //  Create a new show information object
+                        TVShowMetaInfo newShowInfo = new TVShowMetaInfo()
+                        {
+                            Name = showName,
+                            ArtworkLocation = savedArtworkPath,
+                            Rating = iTunesItem.Rating,
+                            Season = season,
+                        };
+
+                        //  Add the show, save the file
+                        this.Shows.Add(newShowInfo);
+                        this.SaveShowInfo();
+                        retval = newShowInfo;
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine("Bad things happened when trying to get show information from iTunes: {0}", ex.Message);
+                    }
                 }
             }
                 
