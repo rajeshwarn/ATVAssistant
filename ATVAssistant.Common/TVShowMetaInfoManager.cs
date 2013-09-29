@@ -128,7 +128,7 @@ namespace ATVAssistant.Common
         /// </summary>
         public void SaveShowInfo()
         {
-            File.WriteAllText(this.MetaInformationFile, this.Shows.ToJson());
+            File.WriteAllText(this.MetaInformationFile, JsonHelper.FormatJson(this.Shows.ToJson()));
         }
     }
 }

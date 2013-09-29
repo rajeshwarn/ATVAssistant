@@ -53,6 +53,7 @@
     <Compile Include="DVDInfo.cs" />
     <Compile Include="iTunesMedia.cs" />
     <Compile Include="iTunesMediaResult.cs" />
+    <Compile Include="JSONHelper.cs" />
     <Compile Include="MovieMetaInfo.cs" />
     <Compile Include="MovieMetaInfoManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
