@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using ServiceStack.Text;
@@ -132,6 +133,42 @@ namespace ATVAssistant.Common
             //  If we didn't get anything back, try without the season
             if(serviceResult.ResultCount < 1)
             {
+                nvc["term"] = showName;
+
+                //  Format the url
+                fullUrl = string.Format(_baseSearchUrl, nvc.ToString());
+
+                //  Call the service and get the results:
+                serviceResult = fullUrl.GetJsonFromUrl().Trim().FromJson<iTunesMediaResult>();
+            }
+
+            //  If we didn't get anything back, try without any funny characters
+            if(serviceResult.ResultCount < 1)
+            {
+                //  Find any funny characters...
+                Match regMatch = Regex.Match(showName, @"[^a-zA-Z\d\s:]");
+
+                //  If we found any, 
+                if(regMatch.Success)
+                {
+                    //  only take the name up to that point
+                    showName = showName.Substring(0, regMatch.Index);
+
+                    //  Set that to be the new show name
+                    nvc["term"] = showName + " " + season;
+
+                    //  Format the url
+                    fullUrl = string.Format(_baseSearchUrl, nvc.ToString());
+
+                    //  Call the service and get the results:
+                    serviceResult = fullUrl.GetJsonFromUrl().Trim().FromJson<iTunesMediaResult>();
+                }
+            }
+
+            //  If we didn't get anything back, try without any funny characters and without the season
+            if(serviceResult.ResultCount < 1)
+            {
+                //  Set that to be the new show name
                 nvc["term"] = showName;
 
                 //  Format the url

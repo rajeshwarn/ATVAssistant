@@ -12,8 +12,11 @@ namespace ATVAssistant.Common.Tests
             //  Arrange
             string showInfoFile = @"c:\temp\showinfo.json";
             string artworkBasePath = @"c:\temp\artwork";
-            string showName = "Breaking Bad";
-            int season = 5;
+            //  string showName = "Undercover Boss (US)";
+            //  string showName = "Homeland";
+            //  string showName = "The Colbert Report";
+            string showName = "Castle (2009)";
+            int season = 3;
 
             //  Act
             TVShowMetaInfoManager mgr = new TVShowMetaInfoManager(showInfoFile, artworkBasePath);
