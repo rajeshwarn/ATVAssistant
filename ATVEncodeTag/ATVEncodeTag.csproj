@@ -59,6 +59,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\ServiceStack.Text.3.9.59\lib\net35\ServiceStack.Text.dll</HintPath>
     </Reference>
+    <Reference Include="ShowInfo">
+      <HintPath>..\packages\TV-show-info.1.0.1\lib\net45\ShowInfo.dll</HintPath>
+    </Reference>
+    <Reference Include="ShowInfoProvider">
+      <HintPath>..\packages\TV-show-info.1.0.1\lib\net45\ShowInfoProvider.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -67,6 +73,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="TheTVDBShowInfo">
+      <HintPath>..\packages\TV-show-info.1.0.1\lib\net45\TheTVDBShowInfo.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Options.cs" />
@@ -78,6 +87,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="showalias.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ATVAssistant.Common\ATVAssistant.Common.csproj">
