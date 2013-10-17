@@ -55,6 +55,9 @@
     <Reference Include="PushoverClient">
       <HintPath>..\packages\PushoverNET.1.0.0\lib\net40\PushoverClient.dll</HintPath>
     </Reference>
+    <Reference Include="RoviShowInfo">
+      <HintPath>..\packages\TV-show-info.1.0.1\lib\net45\RoviShowInfo.dll</HintPath>
+    </Reference>
     <Reference Include="ServiceStack.Text, Version=3.9.59.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\ServiceStack.Text.3.9.59\lib\net35\ServiceStack.Text.dll</HintPath>
@@ -73,9 +76,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TheTVDBShowInfo">
-      <HintPath>..\packages\TV-show-info.1.0.1\lib\net45\TheTVDBShowInfo.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Options.cs" />

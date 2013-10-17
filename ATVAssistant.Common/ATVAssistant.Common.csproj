@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DirectoryHelper.cs" />
     <Compile Include="DVDInfo.cs" />
     <Compile Include="iTunesMedia.cs" />
     <Compile Include="iTunesMediaResult.cs" />

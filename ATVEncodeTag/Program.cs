@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using ATVAssistant.Common;
 using PushoverClient;
+using ShowInfo;
+using ShowInfoProvider;
 
 namespace ATVEncodeTag
 {
@@ -21,8 +23,53 @@ namespace ATVEncodeTag
     {
         static void Main(string[] args)
         {
+            //  Parse commandline options
+            Options options = new Options();
+            if(CommandLine.Parser.Default.ParseArguments(args, options))
+            {
+                switch(options.ProcessType)
+                {
+                    case "single":
+
+                        //  Process the single file
+                        ProcessFile(Path.Combine(options.DirectoryToProcess, options.FileToProcess));
+
+                        break;
+                    case "multi":
+
+                        //  Find out what extensions to look for
+                        string searchPatternsString = ConfigurationManager.AppSettings["MediaFileSearchPatterns"].ToString();
+                        string[] seperators = { "|" };
+                        var searchPatterns = searchPatternsString.Split(seperators, StringSplitOptions.RemoveEmptyEntries);
+
+                        //  Find all the relevant files in the passed directory
+                        IEnumerable<string> allFilesToProcess = DirectoryHelper.GetFiles(options.DirectoryToProcess, searchPatterns, SearchOption.AllDirectories);
+
+                        //  Call 'ProcessFile for each file:
+                        foreach(string fileToProcess in allFilesToProcess)
+                        {
+                            ProcessFile(fileToProcess);
+                        }
+
+                        break;
+                    case "check":
+
+                        //  Check the single file:
+                        CheckFile(Path.Combine(options.DirectoryToProcess, options.FileToProcess));
+
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Process a single file
+        /// </summary>
+        /// <param name="fileName">The file to process</param>
+        private static void ProcessFile(string fileName)
+        {
             #region Load settings
-            
+
             //  Get the base path for source files:
             string basePath = ConfigurationManager.AppSettings["BasePath"];
             string currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -36,7 +83,7 @@ namespace ATVEncodeTag
 
             //  Get after processing path:
             string afterProcessingPath = ConfigurationManager.AppSettings["AfterProcessingPath"];
- 
+
             //  Get artwork Path
             string artworkBasePath = ConfigurationManager.AppSettings["ArtworkBasePath"];
 
@@ -49,140 +96,158 @@ namespace ATVEncodeTag
 
             #endregion
 
-            //  Parse commandline options
-            Options options = new Options();
-            if(CommandLine.Parser.Default.ParseArguments(args, options))
+            #region Get show & episode information
+
+            ShowInformationManager mgr = new ShowInformationManager();
+            TVEpisodeInfo episodeInfo = mgr.GetEpisodeInfoForFilename(fileName);
+
+            #endregion
+
+            #region Get show meta information (artwork, ratings, etc)
+
+            //  Figure out meta information location (artwork / ratings)
+            //  Get artwork and ratings for the show / season
+            string showInfoFullPath = Path.Combine(currentPath, showMetaInfoFile);
+            TVShowMetaInfoManager metaManager = new TVShowMetaInfoManager(showInfoFullPath, artworkBasePath);
+            TVShowMetaInfo metaShowInfo = metaManager.FindShowInfo(episodeInfo.ShowName, episodeInfo.SeasonNumber);
+
+            #endregion
+
+            #region Encode with Handbrake
+
+            //  Determine output path for Handbrake 
+            string handbrakeOutput = Path.Combine(
+                Path.GetDirectoryName(fileName),
+                Path.GetFileNameWithoutExtension(fileName) + ".m4v"
+                );
+
+            //  Process in Handbrake and wait (using timeout)
+            ProcessStartInfo handbrakePInfo = new ProcessStartInfo();
+
+            handbrakePInfo.Arguments = string.Format("-i \"{0}\" -o \"{1}\" {2}",
+                fileName,
+                handbrakeOutput,
+                handbrakeSwitches);
+
+            handbrakePInfo.FileName = Path.Combine(currentPath, "HandBrakeCLI.exe");
+
+            Process handbrakeProcess = Process.Start(handbrakePInfo);
+            handbrakeProcess.WaitForExit(handbrakeTimeout);
+
+            //  If it hasn't exited, but it's not responding...
+            //  kill the process
+            if(!handbrakeProcess.HasExited && !handbrakeProcess.Responding)
             {
-                //  First, see if the passed filename is in our base directory:
-                if(!options.FileToProcess.StartsWith(basePath))
-                    Console.WriteLine("The passed file is not in the base path of {0}", basePath);
-
-                //  Next, parse our directory structure:
-                TVShowInfo showInfo = TVShowInfo.FromPathInfo(basePath, options.FileToProcess);
-
-                #region Get show meta information (artwork, ratings, etc)
-                
-                //  Figure out meta information location (artwork / ratings)
-                //  Get artwork and ratings for the show / season
-                string showInfoFullPath = Path.Combine(currentPath, showMetaInfoFile);
-                TVShowMetaInfoManager metaManager = new TVShowMetaInfoManager(showInfoFullPath, artworkBasePath);
-                TVShowMetaInfo metaShowInfo = metaManager.FindShowInfo(showInfo.Name, showInfo.SeasonNumber);
-
-                #endregion
-                
-                #region Encode with Handbrake
-
-                //  Determine output path for Handbrake 
-                string handbrakeOutput = Path.Combine(
-                    Path.GetDirectoryName(options.FileToProcess),
-                    Path.GetFileNameWithoutExtension(options.FileToProcess) + ".m4v"
-                    );
-
-                //  Process in Handbrake and wait (using timeout)
-                ProcessStartInfo handbrakePInfo = new ProcessStartInfo();
-
-                handbrakePInfo.Arguments = string.Format("-i \"{0}\" -o \"{1}\" {2}",
-                    options.FileToProcess,
-                    handbrakeOutput,
-                    handbrakeSwitches);
-
-                handbrakePInfo.FileName = Path.Combine(currentPath, "HandBrakeCLI.exe");
-
-                Process handbrakeProcess = Process.Start(handbrakePInfo);
-                handbrakeProcess.WaitForExit(handbrakeTimeout);
-
-                //  If it hasn't exited, but it's not responding...
-                //  kill the process
-                if(!handbrakeProcess.HasExited && !handbrakeProcess.Responding)
-                {
-                    handbrakeProcess.Kill();
-                } 
-
-                #endregion
-
-                #region Process with AtomicParsley
-                
-                //  Process in AtomicParsley and wait
-                ProcessStartInfo apPInfo = new ProcessStartInfo();
-
-                //  If we have ratings information & artwork
-                if(metaShowInfo != null)
-                {
-                    //  Use the ratings and artwork information
-                    apPInfo.Arguments = string.Format(
-                        "\"{0}\" --genre \"TV Shows\" --stik \"TV Show\" --TVShowName \"{1}\" --TVEpisode \"{2}{3}\" --TVSeasonNum {2} --TVEpisodeNum {3} --artist \"{1}\" --title \"{4}\" --contentRating \"{5}\" --artwork \"{6}\" --overWrite",
-                        handbrakeOutput,
-                        showInfo.Name,
-                        showInfo.SeasonNumber,
-                        showInfo.EpisodeNumber,
-                        showInfo.EpisodeTitle,
-                        metaShowInfo.Rating,
-                        metaShowInfo.ArtworkLocation
-                        );
-                }
-                else
-                {
-                    //  Otherwise, use simpler arguments
-                    apPInfo.Arguments = string.Format(
-                        "\"{0}\" --genre \"TV Shows\" --stik \"TV Show\" --TVShowName \"{1}\" --TVEpisode \"{2}{3}\" --TVSeasonNum {2} --TVEpisodeNum {3} --artist \"{1}\" --title \"{4}\" --overWrite",
-                        handbrakeOutput,
-                        showInfo.Name,
-                        showInfo.SeasonNumber,
-                        showInfo.EpisodeNumber,
-                        showInfo.EpisodeTitle
-                        );
-                }
-
-                apPInfo.FileName = Path.Combine(currentPath, "AtomicParsley.exe");
-
-                Process apProcess = Process.Start(apPInfo);
-                apProcess.WaitForExit(atomicParsleyTimeout);
-
-                //  If it hasn't exited, but it's not responding...
-                //  kill the process
-                if(!apProcess.HasExited && !apProcess.Responding)
-                {
-                    apProcess.Kill();
-                } 
-
-                #endregion
-
-                #region After processing
-                
-                //  If our output file exists, move to after processing path
-                if(File.Exists(handbrakeOutput))
-                {
-                    string afterProcessingFullPath = Path.Combine(afterProcessingPath, Path.GetFileName(handbrakeOutput));
-                    File.Move(handbrakeOutput, afterProcessingFullPath);
-                }
-
-                //  Remove original file (it shouldn't be needed anymore)
-                if(File.Exists(options.FileToProcess))
-                {
-                    File.Delete(options.FileToProcess);
-                } 
-
-                #endregion
-
-                #region Send notification message
-                
-                if(!string.IsNullOrEmpty(pushoverAppKey) && !string.IsNullOrEmpty(pushoverUserKey))
-                {
-                    //  Create the push client
-                    Pushover pushClient = new Pushover(pushoverAppKey);
-
-                    //  Format the message
-                    string message = string.Format(
-                        "Season {0} Episode {1} (\"{2}\") is ready to watch",
-                        showInfo.SeasonNumber,
-                        showInfo.EpisodeNumber,
-                        showInfo.EpisodeTitle);
-
-                    pushClient.Push(showInfo.Name, message, pushoverUserKey);
-                } 
-
-                #endregion
+                handbrakeProcess.Kill();
             }
+
+            #endregion
+
+            #region Process with AtomicParsley
+
+            //  Process in AtomicParsley and wait
+            ProcessStartInfo apPInfo = new ProcessStartInfo();
+
+            //  If we have ratings information & artwork
+            if(metaShowInfo != null)
+            {
+                //  Use the ratings and artwork information
+                apPInfo.Arguments = string.Format(
+                    "\"{0}\" --genre \"TV Shows\" --stik \"TV Show\" --TVShowName \"{1}\" --TVEpisode \"{2}{3}\" --TVSeasonNum {2} --TVEpisodeNum {3} --artist \"{1}\" --title \"{4}\" --description \"{7}\" --contentRating \"{5}\" --artwork \"{6}\" --overWrite",
+                    handbrakeOutput,
+                    episodeInfo.ShowName,
+                    episodeInfo.SeasonNumber,
+                    episodeInfo.EpisodeNumber,
+                    episodeInfo.EpisodeTitle,
+                    metaShowInfo.Rating,
+                    metaShowInfo.ArtworkLocation,
+                    episodeInfo.EpisodeSummary
+                    );
+            }
+            else if(episodeInfo != null)
+            {
+                //  Otherwise, use simpler arguments
+                apPInfo.Arguments = string.Format(
+                    "\"{0}\" --genre \"TV Shows\" --stik \"TV Show\" --TVShowName \"{1}\" --TVEpisode \"{2}{3}\" --TVSeasonNum {2} --TVEpisodeNum {3} --artist \"{1}\" --title \"{4}\" --description \"{5}\" --overWrite",
+                    handbrakeOutput,
+                    episodeInfo.ShowName,
+                    episodeInfo.SeasonNumber,
+                    episodeInfo.EpisodeNumber,
+                    episodeInfo.EpisodeTitle,
+                    episodeInfo.EpisodeSummary
+                    );
+            }
+
+            apPInfo.FileName = Path.Combine(currentPath, "AtomicParsley.exe");
+
+            Process apProcess = Process.Start(apPInfo);
+            apProcess.WaitForExit(atomicParsleyTimeout);
+
+            //  If it hasn't exited, but it's not responding...
+            //  kill the process
+            if(!apProcess.HasExited && !apProcess.Responding)
+            {
+                apProcess.Kill();
+            }
+
+            #endregion
+
+            #region After processing
+
+            //  If our output file exists, move to after processing path
+            if(File.Exists(handbrakeOutput))
+            {
+                string afterProcessingFullPath = Path.Combine(afterProcessingPath, Path.GetFileName(handbrakeOutput));
+                File.Move(handbrakeOutput, afterProcessingFullPath);
+            }
+
+            #endregion
+
+            #region Send notification message
+
+            if(!string.IsNullOrEmpty(pushoverAppKey) && !string.IsNullOrEmpty(pushoverUserKey))
+            {
+                //  Create the push client
+                Pushover pushClient = new Pushover(pushoverAppKey);
+
+                //  Format the message
+                string message = string.Format(
+                    "Season {0} Episode {1} (\"{2}\") is ready to watch",
+                    episodeInfo.SeasonNumber,
+                    episodeInfo.EpisodeNumber,
+                    episodeInfo.EpisodeTitle);
+
+                pushClient.Push(episodeInfo.ShowName, message, pushoverUserKey);
+            }
+
+            #endregion
+        }
+
+        /// <summary>
+        /// Checks to see what episode information is found for the given filename
+        /// </summary>
+        /// <param name="fileName"></param>
+        private static void CheckFile(string fileName)
+        {
+            Console.WriteLine("Looking for episode information for {0}...", fileName);
+
+            ShowInformationManager mgr = new ShowInformationManager();
+            TVEpisodeInfo episodeInfo = null;
+
+            try
+            {
+                episodeInfo = mgr.GetEpisodeInfoForFilename(fileName);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Looks like there was a problem getting episode information: {0}", ex.Message);
+            }
+
+            if(episodeInfo == null)
+                Console.WriteLine("Couldn't find episode information for {0}", fileName);
+            else
+                Console.WriteLine("Found episode information for: {0}\nShow:{1}\nSeason {2} Episode {3}: {4}\nSummary:{5}\n", fileName, episodeInfo.ShowName, episodeInfo.SeasonNumber, episodeInfo.EpisodeNumber, episodeInfo.EpisodeTitle, episodeInfo.EpisodeSummary);
+
         }
     }
 }

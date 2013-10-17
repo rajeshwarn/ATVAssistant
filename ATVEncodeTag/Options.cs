@@ -13,32 +13,20 @@ namespace ATVEncodeTag
         /// <summary>
         /// The file to process
         /// </summary>
-        [Option('f', "file", HelpText="The media file to process")]
-        public string FileToProcess
-        {
-            get;
-            set;
-        }
+        [Option('f', "file", HelpText="The media file to process", Required=false)]
+        public string FileToProcess { get; set; }
 
         /// <summary>
-        /// Indicates the file should be encoded with Handbrake
+        /// The directory containing the media files to process
         /// </summary>
-        [Option('e', "encode", HelpText = "Indicates the file should be encoded with Handbrake")]
-        public bool Encode
-        {
-            get;
-            set;
-        }
+        [Option('d', "directory", HelpText = "The directory containing media files to process", Required=false)]
+        public string DirectoryToProcess { get; set; }
 
         /// <summary>
-        /// Indicates the file should be tagged using AtomicParsley
+        /// Processing single file or multiple files, or check episode information.  Values:  single/multi/check
         /// </summary>
-        [Option('t', "tag", HelpText = "Indicates the file should be tagged using AtomicParsley")]
-        public bool Tag
-        {
-            get;
-            set;
-        }
+        [Option('t', "type", HelpText = "Processing type: single/multi/check", Required = false)]
+        public string ProcessType { get; set; }
 
         [HelpOption('?', "help", HelpText="Show this help screen")]
         public string GetUsage()
