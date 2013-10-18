@@ -109,7 +109,11 @@ namespace ATVEncodeTag
             //  Get artwork and ratings for the show / season
             string showInfoFullPath = Path.Combine(currentPath, showMetaInfoFile);
             TVShowMetaInfoManager metaManager = new TVShowMetaInfoManager(showInfoFullPath, artworkBasePath);
-            TVShowMetaInfo metaShowInfo = metaManager.FindShowInfo(episodeInfo.ShowName, episodeInfo.SeasonNumber);
+            TVShowMetaInfo metaShowInfo = null;
+            
+            //  If we found show & episode information, look for meta information
+            if(episodeInfo != null)
+                metaShowInfo = metaManager.FindShowInfo(episodeInfo.ShowName, episodeInfo.SeasonNumber);
 
             #endregion
 
@@ -211,13 +215,21 @@ namespace ATVEncodeTag
                 Pushover pushClient = new Pushover(pushoverAppKey);
 
                 //  Format the message
-                string message = string.Format(
-                    "Season {0} Episode {1} (\"{2}\") is ready to watch",
-                    episodeInfo.SeasonNumber,
-                    episodeInfo.EpisodeNumber,
-                    episodeInfo.EpisodeTitle);
+                if(episodeInfo != null)
+                {
+                    string message = string.Format(
+                        "Season {0} Episode {1} (\"{2}\") is ready to watch",
+                        episodeInfo.SeasonNumber,
+                        episodeInfo.EpisodeNumber,
+                        episodeInfo.EpisodeTitle);
 
-                pushClient.Push(episodeInfo.ShowName, message, pushoverUserKey);
+                    pushClient.Push(episodeInfo.ShowName, message, pushoverUserKey);
+                }
+                else
+                {
+                    pushClient.Push(fileName, "File added to iTunes", pushoverUserKey);
+                }
+                
             }
 
             #endregion
