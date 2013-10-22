@@ -165,7 +165,7 @@ namespace ATVEncodeTag
                     episodeInfo.EpisodeTitle,
                     metaShowInfo.Rating,
                     metaShowInfo.ArtworkLocation,
-                    episodeInfo.EpisodeSummary
+                    GetEpisodeSummary(episodeInfo.EpisodeSummary)
                     );
             }
             else if(episodeInfo != null)
@@ -178,7 +178,7 @@ namespace ATVEncodeTag
                     episodeInfo.SeasonNumber,
                     episodeInfo.EpisodeNumber,
                     episodeInfo.EpisodeTitle,
-                    episodeInfo.EpisodeSummary
+                    GetEpisodeSummary(episodeInfo.EpisodeSummary)
                     );
             }
 
@@ -258,8 +258,31 @@ namespace ATVEncodeTag
             if(episodeInfo == null)
                 Console.WriteLine("Couldn't find episode information for {0}", fileName);
             else
-                Console.WriteLine("Found episode information for: {0}\nShow:{1}\nSeason {2} Episode {3}: {4}\nSummary:{5}\n", fileName, episodeInfo.ShowName, episodeInfo.SeasonNumber, episodeInfo.EpisodeNumber, episodeInfo.EpisodeTitle, episodeInfo.EpisodeSummary);
+                Console.WriteLine("Found episode information for: {0}\nShow:{1}\nSeason {2} Episode {3}: {4}\nSummary:{5}\n", fileName, episodeInfo.ShowName, episodeInfo.SeasonNumber, episodeInfo.EpisodeNumber, episodeInfo.EpisodeTitle, GetEpisodeSummary(episodeInfo.EpisodeSummary));
 
+        }
+
+        /// <summary>
+        /// Preps the episode summary to be used by AtomicParsley
+        /// </summary>
+        /// <param name="summary"></param>
+        /// <returns></returns>
+        private static string GetEpisodeSummary(string summary)
+        { 
+            string retval = summary.Trim();
+            
+            //  If we actually have a summary
+            if(!string.IsNullOrWhiteSpace(retval))
+            {
+                //  If it's too long ... 
+                if(retval.Length > 250)
+                {
+                    //  Shorten it and trim any leading / trailing whitespace
+                    retval = retval.Substring(0, 250).Trim();
+                }
+            }
+
+            return retval;
         }
     }
 }
