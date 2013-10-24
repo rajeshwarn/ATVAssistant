@@ -14,22 +14,22 @@ This project takes advantage of several other open source projects and API's, in
 * ServiceStack.Text - https://github.com/ServiceStack/ServiceStack.Text (for JSON parsing)
 * AtomicParsley - https://github.com/wez/atomicparsley (for iTunes meta data manipulation)
 * iTunes search API - http://www.apple.com/itunes/affiliates/resources/documentation/itunes-store-web-service-search-api.html (for artwork and ratings information)
-* Filebot - http://www.filebot.net/ (for TV show information gathering)
+* TVinfo (for TV Episode information)
 
 Optional, but suggested
 ------------------------
 * uTorrent - http://www.utorrent.com/ (for TV show torrent downloading)
-* showRSS - http://showrss.karmorra.info/ (for TV show feeds)
+* showRSS - http://www.showrss.info/ (for TV show feeds)
 
 Setup
 =====
-1. First, get uTorrent and Filebot up and running and working.  For a tutorial, see the Filebot main page.
-2. Next, adjust the Filebot script to run a script when it's completed processing.  The updated command in uTorrent should look something like this:
+1. First, get uTorrent up and running and working.  For a tutorial, see the uTorrent main page.
+2. Next, set uTorrent to run a script when it's completed processing.  The updated command in uTorrent should look something like this:
 
-		"C:\Program Files\FileBot\filebot.exe" -script fn:amc --output "C:/filebot/outputdir" --log-file amc.log --action copy --conflict override -non-strict --def music=y exec="C:/ATVAssistant/ATVEncodeTag.exe -f ""{file}""" "ut_dir=%D" "ut_file=%F" "ut_kind=%K" "ut_title=%N" "ut_label=%L" "ut_state=%S" 
+		"C:\ATVAssistant\ATVEncodeTag.exe" -f "%F" -d "%D" -t "%K" 
 
 3. Make sure that ATVAssistant is in C:\ATVAssistant
 4. Adjust the ATVEncodeTag.exe.config file as needed.  You can set many different options, including the default Handbrake switches and the Pushover API keys.
-5. If you adjust the "AfterProcessingPath" to something useful (like your 'Automatically Add to iTunes' directory), TV shows will just appear in iTunes and your AppleTV correctly.
+5. If you adjust the "AfterProcessingPath" in the ATVEncodeTag.config to something useful (like your 'Automatically Add to iTunes' directory), TV shows will just appear in iTunes and your AppleTV correctly.
 6. Sit back, and enjoy automated goodness.
 
