@@ -14,7 +14,7 @@ This project takes advantage of several other open source projects and API's, in
 * ServiceStack.Text - https://github.com/ServiceStack/ServiceStack.Text (for JSON parsing)
 * AtomicParsley - https://github.com/wez/atomicparsley (for iTunes meta data manipulation)
 * iTunes search API - http://www.apple.com/itunes/affiliates/resources/documentation/itunes-store-web-service-search-api.html (for artwork and ratings information)
-* TVinfo (for TV Episode information)
+* TVshow-info - https://github.com/danesparza/tvshow-info (for TV Episode information)
 
 Optional, but suggested
 ------------------------
