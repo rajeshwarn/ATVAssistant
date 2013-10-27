@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RipRobot", "RipRobot\RipRob
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATVAssistant.CommonReferences", "ATVAssistant.CommonReferences\ATVAssistant.CommonReferences.csproj", "{D6D809E4-D9A9-4D85-B37D-6F2E02CEF284}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uTorrentCleanup", "uTorrentCleanup\uTorrentCleanup.csproj", "{A5416EE7-A11F-45CA-8187-67A25EF30A87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{D6D809E4-D9A9-4D85-B37D-6F2E02CEF284}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6D809E4-D9A9-4D85-B37D-6F2E02CEF284}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6D809E4-D9A9-4D85-B37D-6F2E02CEF284}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5416EE7-A11F-45CA-8187-67A25EF30A87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5416EE7-A11F-45CA-8187-67A25EF30A87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5416EE7-A11F-45CA-8187-67A25EF30A87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5416EE7-A11F-45CA-8187-67A25EF30A87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
