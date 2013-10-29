@@ -269,7 +269,7 @@ namespace ATVEncodeTag
         /// <returns></returns>
         private static string GetEpisodeSummary(string summary)
         { 
-            string retval = summary.Trim();
+            string retval = string.Empty;
             
             //  If we actually have a summary
             if(!string.IsNullOrWhiteSpace(retval))
