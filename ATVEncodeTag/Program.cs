@@ -280,6 +280,8 @@ namespace ATVEncodeTag
                     //  Shorten it and trim any leading / trailing whitespace
                     retval = summary.Substring(0, 250).Trim() + "...";
                 }
+                else
+                    retval = summary;
             }
 
             return retval;
