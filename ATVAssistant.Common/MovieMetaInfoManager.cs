@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -64,7 +65,7 @@ namespace ATVAssistant.Common
                 }
                 catch(Exception ex)
                 {
-                    Console.WriteLine("Bad things happened when trying to get movie information from iTunes: {0}", ex.Message);
+                    Trace.TraceError("Bad things happened when trying to get movie information from iTunes: {0}", ex.Message);
                 }
             }
 

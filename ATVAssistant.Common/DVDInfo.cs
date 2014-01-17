@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -76,7 +77,7 @@ namespace ATVAssistant.Common
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Bad things happened while scanning the disc! {0}", ex.Message);
+                Trace.TraceError("Bad things happened while scanning the disc! {0}", ex.Message);
             }
 
             return retval;
@@ -105,7 +106,7 @@ namespace ATVAssistant.Common
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Bad things happened while getting disc information! {0}", ex.Message);
+                Trace.TraceError("Bad things happened while getting disc information! {0}", ex.Message);
             }
 
             return retval;

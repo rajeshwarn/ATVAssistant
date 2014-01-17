@@ -43,7 +43,7 @@ namespace RipRobot
                 //  Increment the number of tries
                 tries++;
 
-                Console.WriteLine("Waiting for {0} to become ready.  Attempt {1}", dvdDrive, tries);
+                Trace.TraceInformation("Waiting for {0} to become ready.  Attempt {1}", dvdDrive, tries);
 
                 //  Sleep for 30 seconds:
                 Thread.Sleep(TimeSpan.FromSeconds(30));
@@ -52,13 +52,15 @@ namespace RipRobot
             //  If the drive still isn't ready, print a message and get out:
             if(!DriveReady(dvdDrive))
             {
-                Console.WriteLine("I don't think {0} is going to be ready anytime soon.  Exiting.", dvdDrive);
+                Trace.TraceError("I don't think {0} is going to be ready anytime soon.  Exiting.", dvdDrive);
                 return;
             } 
 
             #endregion
 
             #region Load settings
+
+            Trace.TraceInformation("Loading settings");
 
             string dvdBasePath = Path.Combine(dvdDrive + Path.DirectorySeparatorChar, "VIDEO_TS");
             string dvdVolume = (from drive in DriveInfo.GetDrives()
@@ -87,6 +89,8 @@ namespace RipRobot
             string pushoverAppKey = ConfigurationManager.AppSettings["PushoverAppKey"];
             string pushoverUserKey = ConfigurationManager.AppSettings["PushoverUserKey"];
 
+            Trace.TraceInformation("Finished loading settings");
+
             #endregion
 
             #region Get DVD information
@@ -99,12 +103,12 @@ namespace RipRobot
             MovieMetaInfo movieInfo = null;
             if(di != null)
             {
-                Console.WriteLine("Found disc information for: {0} -- looking for movie information", di.Title);
+                Trace.TraceInformation("Found disc information for: {0}", di.Title);
                 movieInfo = mgr.FindMovieInfo(di.Title);
             }
             else
             {
-                Console.WriteLine("Disc information not found!");
+                Trace.TraceWarning("Disc information not found!");
             }
 
             //  If we haven't found the movie information still ... 
@@ -112,7 +116,7 @@ namespace RipRobot
             {
                 //  Plan B:  Try to use the DVD volume name to look up the movie
                 string movieTitle = Regex.Replace(dvdVolume, @"[\W]|_", " ");
-                Console.WriteLine("DiscId not found.  Using volume information to search for a movie called: {0}", movieTitle);
+                Trace.TraceWarning("DiscId not found.  Using volume information to search for a movie called: {0}", movieTitle);
                 movieInfo = mgr.FindMovieInfo(movieTitle);
             }
 
@@ -124,12 +128,12 @@ namespace RipRobot
             string handbrakeOutput = string.Empty;
             if(movieInfo != null)
             {
-                Console.WriteLine("Found movie information for {0} (made in {1}).  Attempting to encode", movieInfo.Name, movieInfo.Year);
+                Trace.TraceInformation("Found movie information for {0} (made in {1}).  Attempting to encode", movieInfo.Name, movieInfo.Year);
 
                 //  Determine output path for Handbrake 
                 handbrakeOutput = Path.Combine(
                     baseProcessingPath,
-                    di.Title + ".m4v"
+                    movieInfo.Name + ".m4v"
                     );
 
                 //  Process in Handbrake and wait (using timeout)
@@ -154,7 +158,7 @@ namespace RipRobot
             }
             else
             {
-                Console.WriteLine("We don't have movie information for disc volume {0}. Attempting to rip", dvdVolume);
+                Trace.TraceInformation("We don't have movie information for disc volume {0}. Attempting to rip", dvdVolume);
 
                 //  Otherwise, just rip to disk
                 string ripPath = Path.Combine(baseProcessingPath, dvdVolume, "VIDEO_TS"); 
@@ -179,7 +183,9 @@ namespace RipRobot
 
             //  If we have movie information and our encoded file exists...
             if(movieInfo != null && File.Exists(handbrakeOutput))
-            { 
+            {
+                Trace.TraceInformation("Looks like we encoded and we have movie information.  Using AtomicParsley...");
+
                 //  Add meta information using Atomicparsley
                 ProcessStartInfo apPInfo = new ProcessStartInfo();
 
@@ -208,6 +214,10 @@ namespace RipRobot
                 //  Move file to post processing area (most likely adding to iTunes)
                 string afterProcessingFullPath = Path.Combine(afterProcessingPath, Path.GetFileName(handbrakeOutput));
                 File.Move(handbrakeOutput, afterProcessingFullPath);
+            }
+            else
+            {
+                Trace.TraceError("Have movie info? {0} Encoded properly? {1}", movieInfo != null, File.Exists(handbrakeOutput));
             }
 
             #endregion
@@ -254,13 +264,17 @@ namespace RipRobot
         /// <param name="driveName">A drive name.  Example: D:\</param>
         /// <returns></returns>
         static bool DriveReady(string driveName)
-        { 
+        {
+            Trace.TraceInformation("Checking to see if drive {0} is ready...", driveName);
+
             bool retval = false;
 
             retval = (from drive in DriveInfo.GetDrives()
                       where drive.Name == driveName + @"\"
                       && drive.IsReady == true
                       select drive).Any();
+
+            Trace.TraceInformation("Drive {0} ready? {1}", driveName, retval);
 
             return retval;
         }

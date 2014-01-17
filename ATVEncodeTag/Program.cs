@@ -241,7 +241,7 @@ namespace ATVEncodeTag
         /// <param name="fileName"></param>
         private static void CheckFile(string fileName)
         {
-            Console.WriteLine("Looking for episode information for {0}...", fileName);
+            Trace.TraceInformation("Looking for episode information for {0}...", fileName);
 
             ShowInformationManager mgr = new ShowInformationManager();
             TVEpisodeInfo episodeInfo = null;
@@ -252,7 +252,7 @@ namespace ATVEncodeTag
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Looks like there was a problem getting episode information: {0}", ex.Message);
+                Trace.TraceError("Looks like there was a problem getting episode information: {0}", ex.Message);
             }
 
             if(episodeInfo == null)

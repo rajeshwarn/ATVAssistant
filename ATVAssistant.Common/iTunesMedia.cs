@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
@@ -192,22 +193,29 @@ namespace ATVAssistant.Common
         public static List<iTunesMedia> ForMovie(string movieName)
         {
             List<iTunesMedia> retval = new List<iTunesMedia>();
-            var nvc = HttpUtility.ParseQueryString(string.Empty);
+            try
+            {
+                var nvc = HttpUtility.ParseQueryString(string.Empty);
 
-            //  Set attributes for a movie.  
-            nvc.Add("term", movieName);
-            nvc.Add("media", "movie");
-            nvc.Add("entity", "movie");
-            nvc.Add("limit", "5");
+                //  Set attributes for a movie.  
+                nvc.Add("term", movieName);
+                nvc.Add("media", "movie");
+                nvc.Add("entity", "movie");
+                nvc.Add("limit", "5");
 
-            //  Format the url
-            string fullUrl = string.Format(_baseSearchUrl, nvc.ToString());
+                //  Format the url
+                string fullUrl = string.Format(_baseSearchUrl, nvc.ToString());
 
-            //  Call the service and get the results:
-            iTunesMediaResult serviceResult = fullUrl.GetJsonFromUrl().Trim().FromJson<iTunesMediaResult>();
+                //  Call the service and get the results:
+                iTunesMediaResult serviceResult = fullUrl.GetJsonFromUrl().Trim().FromJson<iTunesMediaResult>();
 
-            //  Set the results:
-            retval = serviceResult.Results;
+                //  Set the results:
+                retval = serviceResult.Results;
+            }
+            catch(Exception ex)
+            {
+                Trace.TraceError("Couldn't get information for the movie {0} - {1}", movieName, ex.Message);
+            }
 
             return retval;
         }
