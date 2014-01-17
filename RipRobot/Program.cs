@@ -128,12 +128,16 @@ namespace RipRobot
             string handbrakeOutput = string.Empty;
             if(movieInfo != null)
             {
-                Trace.TraceInformation("Found movie information for {0} (made in {1}).  Attempting to encode", movieInfo.Name, movieInfo.Year);
+                Trace.TraceInformation("Found movie information for {0} (made in {1}).", movieInfo.Name, movieInfo.Year);
+
+                //  Clean up the movie name (remove anything not a letter, digit or space)
+                string cleanedMovieName = Regex.Replace(movieInfo.Name, @"[^a-zA-Z\d\s]", "");
+                Trace.TraceInformation("Cleaned movie name: {0}", cleanedMovieName);
 
                 //  Determine output path for Handbrake 
                 handbrakeOutput = Path.Combine(
                     baseProcessingPath,
-                    movieInfo.Name + ".m4v"
+                    cleanedMovieName + ".m4v"
                     );
 
                 //  Process in Handbrake and wait (using timeout)
@@ -146,6 +150,7 @@ namespace RipRobot
 
                 handbrakePInfo.FileName = Path.Combine(currentPath, "HandBrakeCLI.exe");
 
+                Trace.TraceInformation("Attempting to encode the video and put output in {0}", handbrakeOutput);
                 Process handbrakeProcess = Process.Start(handbrakePInfo);
                 handbrakeProcess.WaitForExit(handbrakeTimeout);
 
@@ -158,7 +163,7 @@ namespace RipRobot
             }
             else
             {
-                Trace.TraceInformation("We don't have movie information for disc volume {0}. Attempting to rip", dvdVolume);
+                Trace.TraceInformation("We don't have movie information for disc volume {0}", dvdVolume);
 
                 //  Otherwise, just rip to disk
                 string ripPath = Path.Combine(baseProcessingPath, dvdVolume, "VIDEO_TS"); 
@@ -168,6 +173,8 @@ namespace RipRobot
                 {
                     Directory.CreateDirectory(ripPath);
                 }
+
+                Trace.TraceInformation("Attempting to rip the DVD to the path {0}", ripPath);
 
                 //  Copy files from the DVD to the rip path:
                 foreach(string sourceFileName in Directory.EnumerateFiles(dvdBasePath, "*.*"))
