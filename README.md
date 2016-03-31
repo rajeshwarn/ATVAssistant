@@ -1,4 +1,4 @@
-AppleTV Assistant
+AppleTV Assistant [![Build status](https://ci.appveyor.com/api/projects/status/pnefh1asf5hblxm2?svg=true)](https://ci.appveyor.com/project/danesparza/atvassistant)
 ==================
 
 This assistant encodes and tags media (specifically TV shows) so that they can be 
